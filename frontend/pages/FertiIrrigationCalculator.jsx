@@ -302,7 +302,7 @@ export default function FertiIrrigationCalculator() {
       }
 
       const selectedWater = waterAnalyses.find(w => w.id === formData.water_analysis_id);
-      if (!selectedWater || !selectedWater.anion_hco3 || selectedWater.anion_hco3 < 1.5) {
+      if (!selectedWater || !selectedWater.anion_hco3 || selectedWater.anion_hco3 < 0.5) {
         setAcidRecommendation(null);
         return;
       }
@@ -451,6 +451,47 @@ export default function FertiIrrigationCalculator() {
       fetchFertilizers(true);
       fetchUserCurrency();
     }
+  }, [currentStep]);
+
+  useEffect(() => {
+    const handleSync = (payload, source = 'event') => {
+      const reason = payload?.reason || 'unknown';
+      console.log(`[FertiIrrigation] Fertilizer price sync (${source}):`, reason);
+      fetchUserCurrency();
+      if (currentStep >= 5) {
+        fetchFertilizers(true);
+      }
+    };
+
+    const handlePriceSync = (event) => handleSync(event?.detail, 'event');
+    const handleStorageSync = (event) => {
+      if (event.key !== 'fertilizer-prices-sync' || !event.newValue) return;
+      try {
+        const payload = JSON.parse(event.newValue);
+        handleSync(payload, 'storage');
+      } catch (error) {
+        console.warn('[FertiIrrigation] Unable to parse price sync event', error);
+      }
+    };
+
+    const channel = typeof BroadcastChannel !== 'undefined'
+      ? new BroadcastChannel('fertilizer-prices')
+      : null;
+    const handleChannelSync = (message) => handleSync(message?.data, 'broadcast');
+
+    window.addEventListener('fertilizer-prices-updated', handlePriceSync);
+    window.addEventListener('storage', handleStorageSync);
+    if (channel) {
+      channel.addEventListener('message', handleChannelSync);
+    }
+    return () => {
+      window.removeEventListener('fertilizer-prices-updated', handlePriceSync);
+      window.removeEventListener('storage', handleStorageSync);
+      if (channel) {
+        channel.removeEventListener('message', handleChannelSync);
+        channel.close();
+      }
+    };
   }, [currentStep]);
 
   useEffect(() => {
@@ -4251,6 +4292,54 @@ export default function FertiIrrigationCalculator() {
       }
     };
 
+    const renderCoverageDiagnostics = (profile) => {
+      const diagnostics = profile?.coverage_diagnostics;
+      if (!diagnostics || (!diagnostics.infeasible?.length && !diagnostics.capped?.length)) {
+        return null;
+      }
+
+      return (
+        <div style={{
+          background: '#fff7ed',
+          border: '1px solid #fb923c',
+          borderRadius: '12px',
+          padding: '12px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <AlertCircle style={{ width: '16px', height: '16px', color: '#ea580c' }} />
+            <span style={{ fontWeight: 600, color: '#9a3412', fontSize: '0.875rem' }}>
+              Diagnóstico de Cobertura
+            </span>
+          </div>
+          {diagnostics.infeasible?.length > 0 && (
+            <div style={{ marginBottom: diagnostics.capped?.length ? '8px' : 0 }}>
+              <p style={{ fontSize: '0.75rem', color: '#9a3412', fontWeight: 600, marginBottom: '4px' }}>
+                Nutrientes bloqueados
+              </p>
+              {diagnostics.infeasible.map((item, idx) => (
+                <p key={`infeasible-${idx}`} style={{ fontSize: '0.75rem', color: '#7c2d12', margin: 0 }}>
+                  {item.message || `${item.nutrient}: ${item.coverage}%`}
+                </p>
+              ))}
+            </div>
+          )}
+          {diagnostics.capped?.length > 0 && (
+            <div>
+              <p style={{ fontSize: '0.75rem', color: '#9a3412', fontWeight: 600, marginBottom: '4px' }}>
+                Nutrientes limitados
+              </p>
+              {diagnostics.capped.map((item, idx) => (
+                <p key={`capped-${idx}`} style={{ fontSize: '0.75rem', color: '#7c2d12', margin: 0 }}>
+                  {item.message || `${item.nutrient}: ${item.coverage}%`}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
     // En modo manual, mostramos solo el resumen del programa sin selector de perfiles
     if (isManualMode) {
       const profile = optimizationResult.profiles[0]; // En modo manual solo hay un perfil
@@ -4415,6 +4504,8 @@ export default function FertiIrrigationCalculator() {
                 ))}
               </div>
             )}
+
+            {renderCoverageDiagnostics(profile)}
 
             {/* Calculate button */}
             {(() => {
@@ -4702,6 +4793,8 @@ export default function FertiIrrigationCalculator() {
                       <span className="wizard-warning-text">{profile.warnings[0]}</span>
                     </div>
                   )}
+
+                  {renderCoverageDiagnostics(profile)}
 
                   {/* Use This Profile Button */}
                   {(() => {

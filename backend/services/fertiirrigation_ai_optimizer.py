@@ -3498,6 +3498,7 @@ PROFILE_CONFIGS = {
     'economic': {
         'min_coverage': PROFILE_MIN_COVERAGE['economic'],
         'max_coverage': MAX_COVERAGE_LIMIT,
+        'min_fertilizers': 2,
         'max_fertilizers': 5,
         'profile_name': 'Económico',
         'prefer_multi_nutrient': True,
@@ -3512,7 +3513,8 @@ PROFILE_CONFIGS = {
     'balanced': {
         'min_coverage': PROFILE_MIN_COVERAGE['balanced'],
         'max_coverage': MAX_COVERAGE_LIMIT,
-        'max_fertilizers': 6,
+        'min_fertilizers': 4,
+        'max_fertilizers': 7,
         'profile_name': 'Balanceado',
         'prefer_multi_nutrient': True,
         'diversity_penalty': 0.5,
@@ -3526,7 +3528,8 @@ PROFILE_CONFIGS = {
     'complete': {
         'min_coverage': PROFILE_MIN_COVERAGE['complete'],
         'max_coverage': MAX_COVERAGE_LIMIT,
-        'max_fertilizers': 10,
+        'min_fertilizers': 6,
+        'max_fertilizers': 15,
         'profile_name': 'Completo',
         'prefer_multi_nutrient': False,
         'diversity_penalty': 0.7,
@@ -4024,6 +4027,7 @@ def _optimize_profile(
     max_iterations = config['max_fertilizers']
     min_coverage = config['min_coverage']
     max_coverage = config.get('max_coverage', MAX_COVERAGE_LIMIT)
+    min_fertilizers = config.get('min_fertilizers', 1)
 
     carrier_counts = _count_carriers_per_nutrient(available, deficits)
 
@@ -4266,7 +4270,7 @@ def _optimize_profile(
             current_coverage.get(n, 0) >= min_coverage * 100
             for n in NUTRIENT_PRIORITY if deficits.get(n, 0) > 0)
 
-        if all_covered and not maximize_coverage:
+        if all_covered and not maximize_coverage and len(selected_fertilizers) >= min_fertilizers:
             nutrients_with_deficit = [
                 n for n in NUTRIENT_PRIORITY if deficits.get(n, 0) > 0
             ]
