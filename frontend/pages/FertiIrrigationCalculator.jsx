@@ -4975,16 +4975,54 @@ export default function FertiIrrigationCalculator() {
     }) || [];
 
     const fertProgram = r.fertilizer_program || [];
-    const macroFerts = fertProgram;
+    const acidProgram = r.acid_program;
+    const irrigationVolumeM3Ha = irrigationSuggestion?.volume_m3_ha || formData.irrigation_volume_m3_ha;
+    const numApplications = parseInt(formData.num_applications) || 10;
+    const consolidateFertilizerProgram = (program) => {
+      const grouped = new Map();
+      program.forEach((f) => {
+        const key = f.fertilizer_name || f.name || f.fertilizer_slug || f.fertilizer_id || 'unknown';
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            ...f,
+            fertilizer_name: f.fertilizer_name || f.name,
+            name: f.fertilizer_name || f.name,
+            dose_kg_ha: 0,
+            dose_kg_total: 0,
+            cost_ha: 0,
+            cost_total: 0,
+            subtotal: 0,
+            n_contribution: 0,
+            nh4_contribution: 0,
+            p2o5_contribution: 0,
+            k2o_contribution: 0,
+            ca_contribution: 0,
+            mg_contribution: 0,
+            s_contribution: 0
+          });
+        }
+        const agg = grouped.get(key);
+        agg.dose_kg_ha += f.dose_kg_ha || 0;
+        agg.dose_kg_total += f.dose_kg_total || 0;
+        agg.cost_ha += f.cost_ha || 0;
+        agg.cost_total += f.cost_total || 0;
+        agg.subtotal += f.subtotal || 0;
+        agg.n_contribution += f.n_contribution || 0;
+        agg.nh4_contribution += f.nh4_contribution || 0;
+        agg.p2o5_contribution += f.p2o5_contribution || 0;
+        agg.k2o_contribution += f.k2o_contribution || 0;
+        agg.ca_contribution += f.ca_contribution || 0;
+        agg.mg_contribution += f.mg_contribution || 0;
+        agg.s_contribution += f.s_contribution || 0;
+      });
+      return Array.from(grouped.values());
+    };
+    const macroFerts = consolidateFertilizerProgram(fertProgram);
     const costData = macroFerts.map((f, i) => ({
       name: f.fertilizer_name || f.name,
       value: f.cost_ha || f.cost_total || f.total_cost || (f.dose_kg_ha * (f.cost_per_kg || 0)),
       color: PROFILE_COLORS[i % PROFILE_COLORS.length]
     })).filter(c => c.value > 0) || [];
-
-    const acidProgram = r.acid_program;
-    const irrigationVolumeM3Ha = irrigationSuggestion?.volume_m3_ha || formData.irrigation_volume_m3_ha;
-    const numApplications = parseInt(formData.num_applications) || 10;
     const acidCost = acidProgram?.cost_per_1000L
       ? acidProgram.cost_per_1000L * ((irrigationVolumeM3Ha || 0) * numApplications)
       : 0;
@@ -4996,7 +5034,7 @@ export default function FertiIrrigationCalculator() {
       });
     }
 
-    const fertilizerCostFromProgram = fertProgram.reduce((sum, f) => sum + (f.cost_ha || f.cost_total || 0), 0);
+    const fertilizerCostFromProgram = macroFerts.reduce((sum, f) => sum + (f.cost_ha || f.cost_total || 0), 0);
     const fertilizerCost = fertilizerCostFromProgram > 0 ? fertilizerCostFromProgram : (currentProfile?.total_cost_ha || r.estimated_cost || 0);
     const micronutrientCost = 0;
     const totalCost = fertilizerCost + acidCost + micronutrientCost;
