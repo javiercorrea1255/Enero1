@@ -5034,9 +5034,13 @@ export default function FertiIrrigationCalculator() {
       });
     }
 
+    const selectedOptimizerProfile = optimizationResult?.profiles?.find(p => p.profile_type === selectedProfileType);
+    const microSource = (r.micronutrients && r.micronutrients.length > 0)
+      ? r.micronutrients
+      : (selectedOptimizerProfile?.micronutrients || []);
     const fertilizerCostFromProgram = macroFerts.reduce((sum, f) => sum + (f.cost_ha || f.cost_total || 0), 0);
     const fertilizerCost = fertilizerCostFromProgram > 0 ? fertilizerCostFromProgram : (currentProfile?.total_cost_ha || r.estimated_cost || 0);
-    const micronutrientCost = 0;
+    const micronutrientCost = microSource.reduce((sum, m) => sum + (m.cost_total || m.subtotal || 0), 0);
     const totalCost = fertilizerCost + acidCost + micronutrientCost;
     const avgCoverage = currentProfile?.coverage 
       ? Object.values(currentProfile.coverage).reduce((a, b) => a + b, 0) / Object.keys(currentProfile.coverage).length
@@ -5048,7 +5052,7 @@ export default function FertiIrrigationCalculator() {
     const DEFICIT_TOLERANCE_KG_HA = 0.05;
     const hasRealDeficit = r.nutrient_balance?.some(nb => (nb.deficit_kg_ha || 0) >= DEFICIT_TOLERANCE_KG_HA) || false;
     const fertCount = hasRealDeficit ? (macroFerts.length || 0) : 0;
-    const microCount = 0;
+    const microCount = microSource.length;
 
     const fertSource = macroFerts;
     const acidData = acidProgram || null;
@@ -5104,6 +5108,12 @@ export default function FertiIrrigationCalculator() {
     const topDeficits = (r.nutrient_balance || [])
       .map(nb => ({ nutrient: nb.nutrient, deficit: nb.deficit_kg_ha || 0 }))
       .filter(nb => nb.deficit > 0)
+      .sort((a, b) => b.deficit - a.deficit)
+      .slice(0, 3);
+    const microDeficits = nutrientContributions?.micro_real_deficit || {};
+    const topMicroDeficits = Object.entries(microDeficits)
+      .map(([nutrient, deficit]) => ({ nutrient, deficit: deficit || 0 }))
+      .filter(item => item.deficit > 0)
       .sort((a, b) => b.deficit - a.deficit)
       .slice(0, 3);
 
@@ -5355,7 +5365,7 @@ export default function FertiIrrigationCalculator() {
             <div style={{ fontSize: '0.75rem', color: '#4338ca', fontWeight: 600, marginBottom: '6px' }}>
               Déficits críticos (kg/ha en esta etapa)
             </div>
-            {topDeficits.length > 0 ? (
+            {topDeficits.length > 0 || topMicroDeficits.length > 0 ? (
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 {topDeficits.map((item) => (
                   <span key={item.nutrient} style={{
@@ -5367,6 +5377,18 @@ export default function FertiIrrigationCalculator() {
                     color: '#1e3a8a'
                   }}>
                     {item.nutrient}: {item.deficit.toFixed(1)}
+                  </span>
+                ))}
+                {topMicroDeficits.map((item) => (
+                  <span key={item.nutrient} style={{
+                    background: 'white',
+                    borderRadius: '999px',
+                    padding: '4px 10px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: '#7c3aed'
+                  }}>
+                    {item.nutrient}: {item.deficit.toFixed(1)} g/ha
                   </span>
                 ))}
               </div>
@@ -5835,7 +5857,7 @@ export default function FertiIrrigationCalculator() {
 
         {/* Micronutrients Section - Special Highlighted Table */}
         {(() => {
-          const rawMicros = r.micronutrients || [];
+          const rawMicros = microSource;
           if (rawMicros.length === 0) return null;
 
           const areaHa = parseFloat(formData.area_ha) || 1;
