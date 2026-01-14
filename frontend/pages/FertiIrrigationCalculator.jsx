@@ -4308,6 +4308,10 @@ export default function FertiIrrigationCalculator() {
       if (!diagnostics || (!diagnostics.infeasible?.length && !diagnostics.capped?.length)) {
         return null;
       }
+      const blockedSummary = diagnostics.infeasible?.map(item => item.nutrient).filter(Boolean) || [];
+      const cappedSummary = diagnostics.capped?.map(item => item.nutrient).filter(Boolean) || [];
+      const formatBlockedBy = (blockedBy = []) =>
+        blockedBy.length ? ` (bloqueado por ${blockedBy.join(', ')})` : '';
 
       return (
         <div style={{
@@ -4323,6 +4327,13 @@ export default function FertiIrrigationCalculator() {
               Diagnóstico de Cobertura
             </span>
           </div>
+          {(blockedSummary.length > 0 || cappedSummary.length > 0) && (
+            <p style={{ fontSize: '0.75rem', color: '#9a3412', margin: '0 0 8px' }}>
+              {blockedSummary.length > 0 && `Bloqueados: ${blockedSummary.join(', ')}`}
+              {blockedSummary.length > 0 && cappedSummary.length > 0 ? ' · ' : ''}
+              {cappedSummary.length > 0 && `Limitados: ${cappedSummary.join(', ')}`}
+            </p>
+          )}
           {diagnostics.infeasible?.length > 0 && (
             <div style={{ marginBottom: diagnostics.capped?.length ? '8px' : 0 }}>
               <p style={{ fontSize: '0.75rem', color: '#9a3412', fontWeight: 600, marginBottom: '4px' }}>
@@ -4330,7 +4341,7 @@ export default function FertiIrrigationCalculator() {
               </p>
               {diagnostics.infeasible.map((item, idx) => (
                 <p key={`infeasible-${idx}`} style={{ fontSize: '0.75rem', color: '#7c2d12', margin: 0 }}>
-                  {item.message || `${item.nutrient}: ${item.coverage}%`}
+                  {(item.message || `${item.nutrient}: ${item.coverage}%`) + formatBlockedBy(item.blocked_by)}
                 </p>
               ))}
             </div>
@@ -4933,7 +4944,7 @@ export default function FertiIrrigationCalculator() {
     }
 
     const { result: r } = result;
-    const currentProfile = optimizationResult?.profiles?.find(p => p.profile_type === selectedProfileType);
+    const currentProfile = r.optimization_profile || null;
 
     const coverageData = r.nutrient_balance?.map(nb => {
       const totalContribution = (nb.water_contribution_kg_ha || 0) + 
@@ -4952,14 +4963,19 @@ export default function FertiIrrigationCalculator() {
     }) || [];
 
     const fertProgram = r.fertilizer_program || [];
-    const macroFerts = currentProfile?.macro_fertilizers || currentProfile?.fertilizers || fertProgram;
+    const macroFerts = fertProgram;
     const costData = macroFerts.map((f, i) => ({
       name: f.fertilizer_name || f.name,
       value: f.cost_ha || f.cost_total || f.total_cost || (f.dose_kg_ha * (f.cost_per_kg || 0)),
       color: PROFILE_COLORS[i % PROFILE_COLORS.length]
     })).filter(c => c.value > 0) || [];
 
-    const acidCost = currentProfile?.acid_cost_ha || r.acid_treatment?.total_cost || 0;
+    const acidProgram = r.acid_program;
+    const irrigationVolumeM3Ha = irrigationSuggestion?.volume_m3_ha || formData.irrigation_volume_m3_ha;
+    const numApplications = parseInt(formData.num_applications) || 10;
+    const acidCost = acidProgram?.cost_per_1000L
+      ? acidProgram.cost_per_1000L * ((irrigationVolumeM3Ha || 0) * numApplications)
+      : 0;
     if (acidCost > 0) {
       costData.push({
         name: 'Ácido',
@@ -4968,9 +4984,10 @@ export default function FertiIrrigationCalculator() {
       });
     }
 
-    const fertilizerCost = currentProfile?.macro_cost_ha || currentProfile?.total_cost_ha || r.total_cost_ha || fertProgram.reduce((sum, f) => sum + (f.total_cost || 0), 0);
-    const micronutrientCost = currentProfile?.micro_cost_ha || currentProfile?.micronutrient_cost_ha || 0;
-    const totalCost = currentProfile?.grand_total_ha || (fertilizerCost + acidCost + micronutrientCost);
+    const fertilizerCostFromProgram = fertProgram.reduce((sum, f) => sum + (f.cost_ha || f.cost_total || 0), 0);
+    const fertilizerCost = fertilizerCostFromProgram > 0 ? fertilizerCostFromProgram : (currentProfile?.total_cost_ha || r.estimated_cost || 0);
+    const micronutrientCost = 0;
+    const totalCost = fertilizerCost + acidCost + micronutrientCost;
     const avgCoverage = currentProfile?.coverage 
       ? Object.values(currentProfile.coverage).reduce((a, b) => a + b, 0) / Object.keys(currentProfile.coverage).length
       : coverageData.length > 0 
@@ -4981,25 +4998,19 @@ export default function FertiIrrigationCalculator() {
     const DEFICIT_TOLERANCE_KG_HA = 0.05;
     const hasRealDeficit = r.nutrient_balance?.some(nb => (nb.deficit_kg_ha || 0) >= DEFICIT_TOLERANCE_KG_HA) || false;
     const fertCount = hasRealDeficit ? (macroFerts.length || 0) : 0;
-    const micronutrients = currentProfile?.micronutrients || r.micronutrients || [];
-    const microCount = micronutrients.length;
+    const microCount = 0;
 
-    const numApplications = parseInt(formData.num_applications) || 10;
     const fertSource = macroFerts;
-    const acidData = currentProfile?.acid_treatment || r.acid_treatment;
+    const acidData = acidProgram || null;
     
-    // Build acid entries for the contribution table
-    const acidProgram = optimizationResult?.backendAcidProgram;
-    const acidsForTable = (acidProgram?.acids || []).map(acid => {
+    // Build acid entries for the contribution table (single acid program)
+    const acidsForTable = acidProgram ? (() => {
       const irrVolume = parseFloat(formData.irrigation_volume_m3_ha) || 100;
-      const numApps = numApplications;
-      const areaHa = parseFloat(formData.area_ha) || 1;
-      // Calculate dose in L/ha for the stage
-      const doseL = ((acid.dose_ml_per_1000L || 0) * irrVolume * numApps) / 1000;
-      const contribs = acid.nutrient_contribution || {};
-      return {
-        fertilizer_name: acid.acid_name,
-        name: acid.acid_name,
+      const doseL = ((acidProgram.ml_per_1000L || 0) * irrVolume * numApplications) / 1000;
+      const contribs = acidProgram.nutrient_contribution || {};
+      return [{
+        fertilizer_name: acidProgram.acid_name,
+        name: acidProgram.acid_name,
         dose_kg_ha: doseL, // Show as L/ha for acids
         isAcid: true,
         contributions: {
@@ -5010,15 +5021,14 @@ export default function FertiIrrigationCalculator() {
         n_pct: 0,
         p2o5_pct: 0,
         s_pct: 0
-      };
-    });
+      }];
+    })() : [];
     const selectedWater = getSelectedWater();
     const waterPh = selectedWater?.ph;
     const waterHco3 = getWaterHco3Meq(selectedWater);
     const showWaterWarning = (waterPh && waterPh >= 7.2) || waterHco3 >= 2;
 
     const irrigationFrequencyDays = irrigationSuggestion?.frequency_days || formData.irrigation_frequency_days;
-    const irrigationVolumeM3Ha = irrigationSuggestion?.volume_m3_ha || formData.irrigation_volume_m3_ha;
     const irrigationApplications = stageDurationDays && irrigationFrequencyDays
       ? Math.ceil(stageDurationDays / irrigationFrequencyDays)
       : (irrigationSuggestion?.num_applications || numApplications);
@@ -5636,8 +5646,7 @@ export default function FertiIrrigationCalculator() {
                 <tbody>
                   {r.nutrient_balance?.map((nb, i) => {
                     const soilContrib = nb.soil_available_kg_ha || nb.soil_diagnostic_kg_ha || 0;
-                    const optimizerDeficits = optimizationResult?.deficits || {};
-                    const deficit = optimizerDeficits[nb.nutrient] ?? nb.deficit_kg_ha ?? 0;
+                    const deficit = nb.deficit_kg_ha ?? 0;
                     const minimumApplied = nb.minimum_applied === true;
                     return (
                       <tr key={i}>
@@ -5774,189 +5783,9 @@ export default function FertiIrrigationCalculator() {
           )}
         </div>
 
-        {/* Acid Treatment Section - Multiple Acids Support */}
-        {(() => {
-          const acidProgram = optimizationResult?.backendAcidProgram;
-
-          if (!acidProgram?.recommended) return null;
-
-          const acids = acidProgram.acids || [];
-          if (acids.length === 0) return null;
-
-          const irrVolume = parseFloat(formData.irrigation_volume_m3_ha) || 100;
-          const numApps = parseInt(formData.num_applications) || 10;
-          const areaHa = parseFloat(formData.area_ha) || 1;
-
-          const acidsWithFallbacks = acids.map(acid => {
-            const volumePerHa = ((acid.dose_ml_per_1000L || 0) * irrVolume * numApps) / 1000;
-            const costPerHa = ((acid.cost_per_1000L || 0) * irrVolume * numApps) / 1000;
-            return {
-              ...acid,
-              total_volume_L: acid.total_volume_L > 0 ? acid.total_volume_L : volumePerHa * areaHa,
-              total_cost: acid.total_cost > 0 ? acid.total_cost : costPerHa * areaHa
-            };
-          });
-
-          const totalAcidCost = currentProfile?.acid_cost_ha || r?.acid_cost_ha || acidsWithFallbacks.reduce((sum, a) => sum + (a.total_cost || 0), 0);
-          const totalContributions = acidProgram.total_contributions || {};
-
-          return (
-            <div style={{ 
-              marginTop: '24px',
-              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%)',
-              borderRadius: '16px',
-              padding: isMobile ? '16px' : '24px',
-              border: '2px solid #f59e0b',
-              boxShadow: '0 4px 20px rgba(245, 158, 11, 0.15)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{
-                    width: isMobile ? '40px' : '48px',
-                    height: isMobile ? '40px' : '48px',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
-                  }}>
-                    <Droplets size={isMobile ? 20 : 24} color="white" />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: isMobile ? '1rem' : '1.25rem', fontWeight: '700', color: '#92400e', margin: 0 }}>
-                      Programa de Ácidos ({acids.length})
-                    </h3>
-                    <p style={{ fontSize: '0.85rem', color: '#b45309', margin: '4px 0 0 0' }}>
-                      HCO₃⁻: {acidProgram.hco3_meq_l?.toFixed(1)} meq/L - Neutralización {acidProgram.target_neutralization_pct}%
-                    </p>
-                  </div>
-                </div>
-                <div style={{
-                  background: 'white',
-                  borderRadius: '12px',
-                  padding: isMobile ? '10px 14px' : '12px 20px',
-                  boxShadow: '0 2px 8px rgba(245, 158, 11, 0.1)'
-                }}>
-                  <div style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: '600', textTransform: 'uppercase' }}>
-                    Costo Total Ácidos
-                  </div>
-                  <div style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: '700', color: '#92400e' }}>
-                    {totalAcidCost > 0 ? `${userCurrency.symbol}${totalAcidCost.toFixed(2)}` : 'N/D'}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ 
-                background: 'white',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 2px 12px rgba(245, 158, 11, 0.1)'
-              }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' }}>
-                      <th style={{ padding: '14px 16px', textAlign: 'left', color: 'white', fontWeight: '600', fontSize: '0.9rem' }}>
-                        Ácido
-                      </th>
-                      <th style={{ padding: '14px 16px', textAlign: 'right', color: 'white', fontWeight: '600', fontSize: '0.9rem' }}>
-                        Dosis (mL/1000L)
-                      </th>
-                      <th style={{ padding: '14px 16px', textAlign: 'right', color: 'white', fontWeight: '600', fontSize: '0.9rem' }}>
-                        Volumen Total (L)
-                      </th>
-                      <th style={{ padding: '14px 16px', textAlign: 'right', color: 'white', fontWeight: '600', fontSize: '0.9rem' }}>
-                        Costo ({userCurrency.code})
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {acidsWithFallbacks.map((acid, idx) => (
-                      <tr key={idx} style={{ background: idx % 2 === 0 ? 'white' : '#fffbeb' }}>
-                        <td style={{ padding: '14px 16px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: '36px',
-                              height: '36px',
-                              borderRadius: '8px',
-                              background: '#fef3c7',
-                              fontSize: '1rem'
-                            }}>
-                              💧
-                            </span>
-                            <div>
-                              <div style={{ fontWeight: '700', color: '#92400e', fontSize: '1rem' }}>
-                                {acid.acid_name || acid.acid_id || 'Ácido'}
-                              </div>
-                              <div style={{ fontSize: '0.75rem', color: '#b45309' }}>
-                                {acid.formula || ''} {acid.primary_nutrient ? `(Aporta ${acid.primary_nutrient})` : ''}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: '600', color: '#92400e', fontSize: '0.95rem' }}>
-                          {(acid.dose_ml_per_1000L || 0).toFixed(1)}
-                        </td>
-                        <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: '600', color: '#92400e', fontSize: '0.95rem' }}>
-                          {(acid.total_volume_L || 0).toFixed(2)}
-                        </td>
-                        <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '6px 12px',
-                            borderRadius: '8px',
-                            background: '#fef3c7',
-                            color: '#92400e',
-                            fontWeight: '700',
-                            fontSize: '0.9rem'
-                          }}>
-                            {acid.total_cost > 0 ? `${userCurrency.symbol}${acid.total_cost.toFixed(2)}` : 'N/D'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Total nutrient contributions from all acids */}
-              {Object.keys(totalContributions).filter(k => totalContributions[k] > 0).length > 0 && (
-                <div style={{ 
-                  marginTop: '16px',
-                  background: 'rgba(255,255,255,0.7)',
-                  borderRadius: '10px',
-                  padding: '12px 16px'
-                }}>
-                  <div style={{ fontSize: '0.8rem', color: '#92400e', fontWeight: '600', marginBottom: '8px' }}>
-                    Aporte total de nutrientes (todos los ácidos):
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                    {Object.entries(totalContributions).filter(([_, kg]) => kg > 0).map(([nutrient, kg]) => (
-                      <span key={nutrient} style={{
-                        background: 'white',
-                        padding: '6px 12px',
-                        borderRadius: '8px',
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
-                        color: '#78350f',
-                        border: '1px solid #fcd34d'
-                      }}>
-                        {nutrient}: {typeof kg === 'number' ? kg.toFixed(2) : kg} kg/ha
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
         {/* Micronutrients Section - Special Highlighted Table */}
         {(() => {
-          const rawMicros = currentProfile?.micronutrients || r.micronutrients || [];
+          const rawMicros = r.micronutrients || [];
           if (rawMicros.length === 0) return null;
 
           const areaHa = parseFloat(formData.area_ha) || 1;
