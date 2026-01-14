@@ -1,0 +1,140 @@
+{
+  "crops": [
+    {
+      "id": "lettuce",
+      "name": "Lechuga",
+      "name_en": "Lettuce",
+      "group": "leafy_greens",
+      "description": "Cultivo de hoja verde de ciclo corto",
+      "stages": ["seedling", "vegetative", "preharvest"]
+    },
+    {
+      "id": "spinach",
+      "name": "Espinaca",
+      "name_en": "Spinach",
+      "group": "leafy_greens",
+      "description": "Hoja verde rica en nutrientes",
+      "stages": ["seedling", "vegetative", "preharvest"]
+    },
+    {
+      "id": "kale",
+      "name": "Kale",
+      "name_en": "Kale",
+      "group": "leafy_greens",
+      "description": "Hoja verde resistente y nutritiva",
+      "stages": ["seedling", "vegetative", "preharvest"]
+    },
+    {
+      "id": "tomato",
+      "name": "Tomate",
+      "name_en": "Tomato",
+      "group": "fruiting_veg",
+      "description": "Cultivo de fruto de alto valor",
+      "stages": ["seedling", "vegetative", "flowering", "fruiting"]
+    },
+    {
+      "id": "cucumber",
+      "name": "Pepino",
+      "name_en": "Cucumber",
+      "group": "fruiting_veg",
+      "description": "Cucurbitácea de rápido crecimiento",
+      "stages": ["seedling", "vegetative", "flowering", "fruiting"]
+    },
+    {
+      "id": "pepper",
+      "name": "Chile / Pimiento",
+      "name_en": "Pepper / Chili",
+      "group": "fruiting_veg",
+      "description": "Solanácea de fruto picante o dulce",
+      "stages": ["seedling", "vegetative", "flowering", "fruiting"]
+    },
+    {
+      "id": "strawberry",
+      "name": "Fresa",
+      "name_en": "Strawberry",
+      "group": "strawberry",
+      "description": "Fruto pequeño de alto valor comercial",
+      "stages": ["seedling", "vegetative", "flowering", "fruiting"]
+    },
+    {
+      "id": "basil",
+      "name": "Albahaca",
+      "name_en": "Basil",
+      "group": "herbs",
+      "description": "Hierba aromática de rápido crecimiento",
+      "stages": ["seedling", "vegetative"]
+    },
+    {
+      "id": "cilantro",
+      "name": "Cilantro",
+      "name_en": "Cilantro",
+      "group": "herbs",
+      "description": "Hierba aromática para consumo fresco",
+      "stages": ["seedling", "vegetative"]
+    },
+    {
+      "id": "mint",
+      "name": "Menta",
+      "name_en": "Mint",
+      "group": "herbs",
+      "description": "Hierba aromática perenne",
+      "stages": ["seedling", "vegetative"]
+    },
+    {
+      "id": "micro_mix",
+      "name": "Microgreens Mixtos",
+      "name_en": "Mixed Microgreens",
+      "group": "microgreens",
+      "description": "Mezcla de plántulas jóvenes cosechadas temprano",
+      "stages": ["microgreen"]
+    },
+    {
+      "id": "radish",
+      "name": "Rábano",
+      "name_en": "Radish",
+      "group": "root_veg",
+      "description": "Raíz comestible de ciclo corto",
+      "stages": ["seedling", "vegetative"]
+    },
+    {
+      "id": "carrot",
+      "name": "Zanahoria",
+      "name_en": "Carrot",
+      "group": "root_veg",
+      "description": "Raíz comestible de ciclo medio",
+      "stages": ["seedling", "vegetative"]
+    }
+  ],
+  "groups": {
+    "leafy_greens": {
+      "name": "Hortalizas de Hoja",
+      "name_en": "Leafy Greens",
+      "description": "Cultivos donde se cosecha principalmente la hoja"
+    },
+    "fruiting_veg": {
+      "name": "Hortalizas de Fruto",
+      "name_en": "Fruiting Vegetables",
+      "description": "Cultivos donde se cosecha el fruto"
+    },
+    "strawberry": {
+      "name": "Fresas",
+      "name_en": "Strawberries",
+      "description": "Frutos pequeños de alto valor"
+    },
+    "herbs": {
+      "name": "Hierbas Aromáticas",
+      "name_en": "Herbs",
+      "description": "Plantas aromáticas y culinarias"
+    },
+    "microgreens": {
+      "name": "Microgreens",
+      "name_en": "Microgreens",
+      "description": "Plántulas jóvenes cosechadas en etapa temprana"
+    },
+    "root_veg": {
+      "name": "Hortalizas de Raíz",
+      "name_en": "Root Vegetables",
+      "description": "Cultivos donde se cosecha la raíz"
+    }
+  }
+}

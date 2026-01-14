@@ -1,0 +1,142 @@
+{
+  "fertilizers": [
+    {
+      "id": "masterblend_4_18_38",
+      "name": "Masterblend 4-18-38",
+      "type": "complete_base",
+      "description": "Fertilizante base completo con micronutrientes incluidos",
+      "composition": {
+        "n_percent": 0.04,
+        "p_percent": 0.18,
+        "k_percent": 0.38,
+        "ca_percent": 0.0,
+        "mg_percent": 0.0,
+        "s_percent": 0.0,
+        "micronutrients": {
+          "fe": 0.15,
+          "mn": 0.05,
+          "zn": 0.015,
+          "cu": 0.005,
+          "b": 0.02,
+          "mo": 0.0005
+        }
+      },
+      "solubility_g_per_l": 500,
+      "cost_per_kg": 220,
+      "notes": "Fórmula profesional con micronutrientes quelados. Usar en combinación con Nitrato de Calcio y Sal de Epsom."
+    },
+    {
+      "id": "calcium_nitrate",
+      "name": "Nitrato de Calcio",
+      "chemical_formula": "Ca(NO3)2",
+      "type": "calcium_nitrogen",
+      "description": "Fuente principal de calcio y nitrógeno complementario",
+      "composition": {
+        "n_percent": 0.15,
+        "p_percent": 0.0,
+        "k_percent": 0.0,
+        "ca_percent": 0.19,
+        "mg_percent": 0.0,
+        "s_percent": 0.0
+      },
+      "solubility_g_per_l": 1200,
+      "cost_per_kg": 85,
+      "notes": "Mantener separado del Masterblend en sistemas de stock concentrado para evitar precipitación."
+    },
+    {
+      "id": "epsom_salt",
+      "name": "Sal de Epsom",
+      "chemical_formula": "MgSO4·7H2O",
+      "type": "magnesium_sulfur",
+      "description": "Fuente de magnesio y azufre",
+      "composition": {
+        "n_percent": 0.0,
+        "p_percent": 0.0,
+        "k_percent": 0.0,
+        "ca_percent": 0.0,
+        "mg_percent": 0.098,
+        "s_percent": 0.13
+      },
+      "solubility_g_per_l": 700,
+      "cost_per_kg": 45,
+      "notes": "Sal de Epsom hidratada. Compatible con todos los demás fertilizantes en solución final."
+    }
+  ],
+  "mixing_instructions": {
+    "direct_solution": {
+      "order": [
+        "calcium_nitrate",
+        "epsom_salt",
+        "masterblend_4_18_38"
+      ],
+      "notes": "Disolver cada fertilizante completamente antes de agregar el siguiente. Agregar el Masterblend al final para evitar precipitación."
+    },
+    "stock_solutions": {
+      "tank_a": {
+        "fertilizers": ["calcium_nitrate"],
+        "concentration_factor": 100,
+        "notes": "Stock A: Solo Nitrato de Calcio. Mantener separado del Stock B."
+      },
+      "tank_b": {
+        "fertilizers": ["masterblend_4_18_38", "epsom_salt"],
+        "concentration_factor": 100,
+        "notes": "Stock B: Masterblend + Sal de Epsom. Compatible en el mismo tanque concentrado."
+      },
+      "injection_ratio": "1:100",
+      "notes": "Inyectar ambos stocks simultáneamente en proporción 1:100 (stock:agua). Nunca mezclar stocks concentrados entre sí."
+    }
+  },
+  "acid_adjusters": [
+    {
+      "id": "phosphoric_acid_85",
+      "name": "Ácido Fosfórico 85%",
+      "concentration": 0.85,
+      "type": "phosphoric",
+      "ph_reduction_factor": 12,
+      "description": "Ácido más común en hidroponía. Aporta fósforo adicional.",
+      "formula": "mL = ((Alcalinidad_actual - Alcalinidad_objetivo) / 12) * (Volumen_L / 100)",
+      "cost_per_liter": 180,
+      "notes": "Usar protección. Agregar lentamente al agua, nunca al revés."
+    },
+    {
+      "id": "nitric_acid_68",
+      "name": "Ácido Nítrico 68%",
+      "concentration": 0.68,
+      "type": "nitric",
+      "ph_reduction_factor": 10,
+      "description": "Alternativa que aporta nitrógeno adicional. Útil en etapas vegetativas.",
+      "formula": "mL = ((Alcalinidad_actual - Alcalinidad_objetivo) / 10) * (Volumen_L / 100)",
+      "cost_per_liter": 150,
+      "notes": "Altamente corrosivo. Aporta NO3- adicional."
+    },
+    {
+      "id": "sulfuric_acid_98",
+      "name": "Ácido Sulfúrico 98%",
+      "concentration": 0.98,
+      "type": "sulfuric",
+      "ph_reduction_factor": 15,
+      "description": "Ácido muy fuerte. Aporta azufre adicional. Requiere máxima precaución.",
+      "formula": "mL = ((Alcalinidad_actual - Alcalinidad_objetivo) / 15) * (Volumen_L / 100)",
+      "cost_per_liter": 120,
+      "notes": "PELIGROSO. Solo para usuarios experimentados. Genera calor al diluir."
+    },
+    {
+      "id": "citric_acid",
+      "name": "Ácido Cítrico",
+      "concentration": 1.0,
+      "type": "citric",
+      "ph_reduction_factor": 5,
+      "description": "Opción orgánica y segura. Menos eficiente pero más amigable.",
+      "formula": "g = ((Alcalinidad_actual - Alcalinidad_objetivo) / 5) * (Volumen_L / 100)",
+      "cost_per_kg": 200,
+      "notes": "Forma sólida. Seguro para principiantes. Puede promover crecimiento microbiano en exceso."
+    }
+  ],
+  "target_alkalinity": {
+    "min": 40,
+    "max": 70,
+    "optimal": 55,
+    "unit": "ppm CaCO3",
+    "notes": "Rango óptimo para la mayoría de cultivos hidropónicos. Fuera de este rango, considerar preacondicionar el agua."
+  }
+}

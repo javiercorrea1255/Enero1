@@ -1,0 +1,546 @@
+[
+  {
+    "slug": "maiz",
+    "name": "Corn",
+    "name_es": "Maíz",
+    "n_per_t": 22.0,
+    "p2o5_per_t": 9.0,
+    "k2o_per_t": 20.0,
+    "description": "Maíz de grano (Zea mays). Coeficientes para rendimiento de grano seco."
+  },
+  {
+    "slug": "trigo",
+    "name": "Wheat",
+    "name_es": "Trigo",
+    "n_per_t": 25.0,
+    "p2o5_per_t": 10.0,
+    "k2o_per_t": 18.0,
+    "description": "Trigo harinero (Triticum aestivum). Coeficientes para grano."
+  },
+  {
+    "slug": "arroz",
+    "name": "Rice",
+    "name_es": "Arroz",
+    "n_per_t": 20.0,
+    "p2o5_per_t": 8.0,
+    "k2o_per_t": 22.0,
+    "description": "Arroz (Oryza sativa). Coeficientes para grano descascarado."
+  },
+  {
+    "slug": "papa",
+    "name": "Potato",
+    "name_es": "Papa",
+    "n_per_t": 3.5,
+    "p2o5_per_t": 1.5,
+    "k2o_per_t": 5.0,
+    "description": "Papa (Solanum tuberosum). Coeficientes para tubérculos frescos."
+  },
+  {
+    "slug": "soya",
+    "name": "Soybean",
+    "name_es": "Soya",
+    "n_per_t": 16.0,
+    "p2o5_per_t": 14.0,
+    "k2o_per_t": 38.0,
+    "is_legume": true,
+    "n_fixation_pct": 80,
+    "description": "Soya (Glycine max). Coeficiente N ajustado: extracción 80 kg/t menos 80% fijación biológica = 16 kg/t fertilización."
+  },
+  {
+    "slug": "alfalfa",
+    "name": "Alfalfa",
+    "name_es": "Alfalfa",
+    "n_per_t": 11.0,
+    "p2o5_per_t": 11.0,
+    "k2o_per_t": 45.0,
+    "is_legume": true,
+    "n_fixation_pct": 80,
+    "description": "Alfalfa (Medicago sativa). Coeficiente N ajustado: extracción 55 kg/t menos 80% fijación biológica = 11 kg/t fertilización."
+  },
+  {
+    "slug": "sorgo",
+    "name": "Sorghum",
+    "name_es": "Sorgo",
+    "n_per_t": 20.0,
+    "p2o5_per_t": 8.0,
+    "k2o_per_t": 18.0,
+    "description": "Sorgo granífero (Sorghum bicolor). Coeficientes para grano."
+  },
+  {
+    "slug": "girasol",
+    "name": "Sunflower",
+    "name_es": "Girasol",
+    "n_per_t": 45.0,
+    "p2o5_per_t": 18.0,
+    "k2o_per_t": 35.0,
+    "description": "Girasol (Helianthus annuus). Coeficientes para grano oleaginoso."
+  },
+  {
+    "slug": "tomate",
+    "name": "Tomato",
+    "name_es": "Tomate",
+    "n_per_t": 2.5,
+    "p2o5_per_t": 0.8,
+    "k2o_per_t": 3.5,
+    "description": "Tomate (Solanum lycopersicum). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "chile",
+    "name": "Chili Pepper",
+    "name_es": "Chile",
+    "n_per_t": 3.0,
+    "p2o5_per_t": 1.0,
+    "k2o_per_t": 4.0,
+    "description": "Chile (Capsicum spp.). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "cebolla",
+    "name": "Onion",
+    "name_es": "Cebolla",
+    "n_per_t": 2.0,
+    "p2o5_per_t": 0.8,
+    "k2o_per_t": 2.5,
+    "description": "Cebolla (Allium cepa). Coeficientes para bulbo fresco."
+  },
+  {
+    "slug": "lechuga",
+    "name": "Lettuce",
+    "name_es": "Lechuga",
+    "n_per_t": 2.5,
+    "p2o5_per_t": 0.7,
+    "k2o_per_t": 3.0,
+    "description": "Lechuga (Lactuca sativa). Coeficientes para biomasa fresca."
+  },
+  {
+    "slug": "brocoli",
+    "name": "Broccoli",
+    "name_es": "Brócoli",
+    "n_per_t": 3.5,
+    "p2o5_per_t": 1.2,
+    "k2o_per_t": 4.0,
+    "description": "Brócoli (Brassica oleracea var. italica). Coeficientes para inflorescencia fresca."
+  },
+  {
+    "slug": "zanahoria",
+    "name": "Carrot",
+    "name_es": "Zanahoria",
+    "n_per_t": 2.0,
+    "p2o5_per_t": 0.9,
+    "k2o_per_t": 3.0,
+    "description": "Zanahoria (Daucus carota). Coeficientes para raíz fresca."
+  },
+  {
+    "slug": "fresa",
+    "name": "Strawberry",
+    "name_es": "Fresa",
+    "n_per_t": 1.8,
+    "p2o5_per_t": 0.6,
+    "k2o_per_t": 2.5,
+    "description": "Fresa (Fragaria × ananassa). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "melon",
+    "name": "Melon",
+    "name_es": "Melón",
+    "n_per_t": 2.2,
+    "p2o5_per_t": 0.8,
+    "k2o_per_t": 3.2,
+    "description": "Melón (Cucumis melo). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "sandia",
+    "name": "Watermelon",
+    "name_es": "Sandía",
+    "n_per_t": 1.5,
+    "p2o5_per_t": 0.5,
+    "k2o_per_t": 2.0,
+    "description": "Sandía (Citrullus lanatus). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "aguacate",
+    "name": "Avocado",
+    "name_es": "Aguacate",
+    "n_per_t": 2.5,
+    "p2o5_per_t": 0.4,
+    "k2o_per_t": 3.5,
+    "description": "Aguacate (Persea americana). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "mango",
+    "name": "Mango",
+    "name_es": "Mango",
+    "n_per_t": 1.5,
+    "p2o5_per_t": 0.3,
+    "k2o_per_t": 2.0,
+    "description": "Mango (Mangifera indica). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "naranja",
+    "name": "Orange",
+    "name_es": "Naranja",
+    "n_per_t": 2.0,
+    "p2o5_per_t": 0.4,
+    "k2o_per_t": 2.5,
+    "description": "Naranja (Citrus × sinensis). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "limon",
+    "name": "Lemon",
+    "name_es": "Limón",
+    "n_per_t": 2.2,
+    "p2o5_per_t": 0.5,
+    "k2o_per_t": 2.8,
+    "description": "Limón (Citrus limon). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "cafe",
+    "name": "Coffee",
+    "name_es": "Café",
+    "n_per_t": 22.0,
+    "p2o5_per_t": 3.5,
+    "k2o_per_t": 28.0,
+    "description": "Café (Coffea arabica). Coeficientes para grano cereza."
+  },
+  {
+    "slug": "cacao",
+    "name": "Cocoa",
+    "name_es": "Cacao",
+    "n_per_t": 18.0,
+    "p2o5_per_t": 4.0,
+    "k2o_per_t": 30.0,
+    "description": "Cacao (Theobroma cacao). Coeficientes para mazorca."
+  },
+  {
+    "slug": "platano",
+    "name": "Banana",
+    "name_es": "Plátano",
+    "n_per_t": 3.0,
+    "p2o5_per_t": 0.5,
+    "k2o_per_t": 8.0,
+    "description": "Plátano (Musa spp.). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "cana_azucar",
+    "name": "Sugarcane",
+    "name_es": "Caña de Azúcar",
+    "n_per_t": 1.8,
+    "p2o5_per_t": 0.8,
+    "k2o_per_t": 2.5,
+    "description": "Caña de azúcar (Saccharum officinarum). Coeficientes para caña fresca."
+  },
+  {
+    "slug": "algodon",
+    "name": "Cotton",
+    "name_es": "Algodón",
+    "n_per_t": 55.0,
+    "p2o5_per_t": 20.0,
+    "k2o_per_t": 35.0,
+    "description": "Algodón (Gossypium hirsutum). Coeficientes para fibra."
+  },
+  {
+    "slug": "frijol",
+    "name": "Common Bean",
+    "name_es": "Frijol",
+    "n_per_t": 60.0,
+    "p2o5_per_t": 10.0,
+    "k2o_per_t": 25.0,
+    "description": "Frijol (Phaseolus vulgaris). Coeficientes para grano seco. N alto por fijación."
+  },
+  {
+    "slug": "garbanzo",
+    "name": "Chickpea",
+    "name_es": "Garbanzo",
+    "n_per_t": 55.0,
+    "p2o5_per_t": 12.0,
+    "k2o_per_t": 20.0,
+    "description": "Garbanzo (Cicer arietinum). Coeficientes para grano seco. N alto por fijación."
+  },
+  {
+    "slug": "cacahuate",
+    "name": "Peanut",
+    "name_es": "Cacahuate",
+    "n_per_t": 70.0,
+    "p2o5_per_t": 8.0,
+    "k2o_per_t": 15.0,
+    "description": "Cacahuate (Arachis hypogaea). Coeficientes para grano. N alto por fijación."
+  },
+  {
+    "slug": "esparrago",
+    "name": "Asparagus",
+    "name_es": "Espárrago",
+    "n_per_t": 4.0,
+    "p2o5_per_t": 1.5,
+    "k2o_per_t": 3.5,
+    "description": "Espárrago (Asparagus officinalis). Coeficientes para turiones frescos."
+  },
+  {
+    "slug": "avena",
+    "name": "Oat",
+    "name_es": "Avena",
+    "n_per_t": 22.0,
+    "p2o5_per_t": 8.0,
+    "k2o_per_t": 16.0,
+    "description": "Avena (Avena sativa). Coeficientes para grano."
+  },
+  {
+    "slug": "cebada",
+    "name": "Barley",
+    "name_es": "Cebada",
+    "n_per_t": 23.0,
+    "p2o5_per_t": 9.0,
+    "k2o_per_t": 17.0,
+    "description": "Cebada (Hordeum vulgare). Coeficientes para grano."
+  },
+  {
+    "slug": "calabaza",
+    "name": "Pumpkin",
+    "name_es": "Calabaza",
+    "n_per_t": 2.0,
+    "p2o5_per_t": 0.7,
+    "k2o_per_t": 3.0,
+    "description": "Calabaza (Cucurbita pepo). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "pepino",
+    "name": "Cucumber",
+    "name_es": "Pepino",
+    "n_per_t": 2.2,
+    "p2o5_per_t": 0.8,
+    "k2o_per_t": 3.2,
+    "description": "Pepino (Cucumis sativus). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "berenjena",
+    "name": "Eggplant",
+    "name_es": "Berenjena",
+    "n_per_t": 3.2,
+    "p2o5_per_t": 1.0,
+    "k2o_per_t": 4.5,
+    "description": "Berenjena (Solanum melongena). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "pimiento",
+    "name": "Bell Pepper",
+    "name_es": "Pimiento",
+    "n_per_t": 3.0,
+    "p2o5_per_t": 0.9,
+    "k2o_per_t": 4.2,
+    "description": "Pimiento (Capsicum annuum). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "ajo",
+    "name": "Garlic",
+    "name_es": "Ajo",
+    "n_per_t": 4.5,
+    "p2o5_per_t": 1.8,
+    "k2o_per_t": 3.5,
+    "description": "Ajo (Allium sativum). Coeficientes para bulbo fresco."
+  },
+  {
+    "slug": "espinaca",
+    "name": "Spinach",
+    "name_es": "Espinaca",
+    "n_per_t": 3.0,
+    "p2o5_per_t": 0.8,
+    "k2o_per_t": 3.5,
+    "description": "Espinaca (Spinacia oleracea). Coeficientes para hojas frescas."
+  },
+  {
+    "slug": "col",
+    "name": "Cabbage",
+    "name_es": "Col/Repollo",
+    "n_per_t": 2.5,
+    "p2o5_per_t": 1.0,
+    "k2o_per_t": 3.0,
+    "description": "Col (Brassica oleracea var. capitata). Coeficientes para cabeza fresca."
+  },
+  {
+    "slug": "coliflor",
+    "name": "Cauliflower",
+    "name_es": "Coliflor",
+    "n_per_t": 3.2,
+    "p2o5_per_t": 1.1,
+    "k2o_per_t": 3.8,
+    "description": "Coliflor (Brassica oleracea var. botrytis). Coeficientes para inflorescencia fresca."
+  },
+  {
+    "slug": "rabano",
+    "name": "Radish",
+    "name_es": "Rábano",
+    "n_per_t": 2.2,
+    "p2o5_per_t": 0.9,
+    "k2o_per_t": 3.5,
+    "description": "Rábano (Raphanus sativus). Coeficientes para raíz fresca."
+  },
+  {
+    "slug": "betabel",
+    "name": "Beet",
+    "name_es": "Betabel",
+    "n_per_t": 2.5,
+    "p2o5_per_t": 1.0,
+    "k2o_per_t": 4.0,
+    "description": "Betabel (Beta vulgaris). Coeficientes para raíz fresca."
+  },
+  {
+    "slug": "papaya",
+    "name": "Papaya",
+    "name_es": "Papaya",
+    "n_per_t": 1.2,
+    "p2o5_per_t": 0.3,
+    "k2o_per_t": 2.0,
+    "description": "Papaya (Carica papaya). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "pina",
+    "name": "Pineapple",
+    "name_es": "Piña",
+    "n_per_t": 1.5,
+    "p2o5_per_t": 0.4,
+    "k2o_per_t": 2.5,
+    "description": "Piña (Ananas comosus). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "guayaba",
+    "name": "Guava",
+    "name_es": "Guayaba",
+    "n_per_t": 1.8,
+    "p2o5_per_t": 0.4,
+    "k2o_per_t": 2.2,
+    "description": "Guayaba (Psidium guajava). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "uva",
+    "name": "Grape",
+    "name_es": "Uva",
+    "n_per_t": 2.5,
+    "p2o5_per_t": 0.6,
+    "k2o_per_t": 3.0,
+    "description": "Uva (Vitis vinifera). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "durazno",
+    "name": "Peach",
+    "name_es": "Durazno",
+    "n_per_t": 2.0,
+    "p2o5_per_t": 0.5,
+    "k2o_per_t": 2.8,
+    "description": "Durazno (Prunus persica). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "ciruela",
+    "name": "Plum",
+    "name_es": "Ciruela",
+    "n_per_t": 1.8,
+    "p2o5_per_t": 0.4,
+    "k2o_per_t": 2.5,
+    "description": "Ciruela (Prunus domestica). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "manzana",
+    "name": "Apple",
+    "name_es": "Manzana",
+    "n_per_t": 1.5,
+    "p2o5_per_t": 0.3,
+    "k2o_per_t": 2.0,
+    "description": "Manzana (Malus domestica). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "pera",
+    "name": "Pear",
+    "name_es": "Pera",
+    "n_per_t": 1.4,
+    "p2o5_per_t": 0.3,
+    "k2o_per_t": 1.8,
+    "description": "Pera (Pyrus communis). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "agave",
+    "name": "Agave",
+    "name_es": "Agave Tequilero",
+    "n_per_t": 1.0,
+    "p2o5_per_t": 0.3,
+    "k2o_per_t": 1.5,
+    "description": "Agave tequilana. Coeficientes para piña (base de la planta)."
+  },
+  {
+    "slug": "nopal",
+    "name": "Prickly Pear",
+    "name_es": "Nopal",
+    "n_per_t": 1.5,
+    "p2o5_per_t": 0.4,
+    "k2o_per_t": 2.0,
+    "description": "Nopal (Opuntia ficus-indica). Coeficientes para cladodio fresco."
+  },
+  {
+    "slug": "jamaica",
+    "name": "Hibiscus",
+    "name_es": "Jamaica",
+    "n_per_t": 15.0,
+    "p2o5_per_t": 5.0,
+    "k2o_per_t": 12.0,
+    "description": "Jamaica (Hibiscus sabdariffa). Coeficientes para cáliz seco."
+  },
+  {
+    "slug": "ajonjoli",
+    "name": "Sesame",
+    "name_es": "Ajonjolí",
+    "n_per_t": 48.0,
+    "p2o5_per_t": 16.0,
+    "k2o_per_t": 25.0,
+    "description": "Ajonjolí (Sesamum indicum). Coeficientes para semilla oleaginosa."
+  },
+  {
+    "slug": "canola",
+    "name": "Canola",
+    "name_es": "Canola",
+    "n_per_t": 50.0,
+    "p2o5_per_t": 20.0,
+    "k2o_per_t": 30.0,
+    "description": "Canola (Brassica napus). Coeficientes para semilla oleaginosa."
+  },
+  {
+    "slug": "lenteja",
+    "name": "Lentil",
+    "name_es": "Lenteja",
+    "n_per_t": 58.0,
+    "p2o5_per_t": 11.0,
+    "k2o_per_t": 22.0,
+    "description": "Lenteja (Lens culinaris). Coeficientes para grano seco. N alto por fijación."
+  },
+  {
+    "slug": "haba",
+    "name": "Fava Bean",
+    "name_es": "Haba",
+    "n_per_t": 62.0,
+    "p2o5_per_t": 12.0,
+    "k2o_per_t": 24.0,
+    "description": "Haba (Vicia faba). Coeficientes para grano seco. N alto por fijación."
+  },
+  {
+    "slug": "avena_forrajera",
+    "name": "Forage Oat",
+    "name_es": "Avena Forrajera",
+    "n_per_t": 30.0,
+    "p2o5_per_t": 8.0,
+    "k2o_per_t": 28.0,
+    "description": "Avena forrajera (Avena sativa). Coeficientes para forraje verde."
+  },
+  {
+    "slug": "pasto_rye_grass",
+    "name": "Rye Grass",
+    "name_es": "Pasto Ballico/Rye Grass",
+    "n_per_t": 35.0,
+    "p2o5_per_t": 10.0,
+    "k2o_per_t": 32.0,
+    "description": "Ballico (Lolium spp.). Coeficientes para forraje verde."
+  },
+  {
+    "slug": "pasto_sudan",
+    "name": "Sudan Grass",
+    "name_es": "Pasto Sudán",
+    "n_per_t": 25.0,
+    "p2o5_per_t": 7.0,
+    "k2o_per_t": 25.0,
+    "description": "Pasto Sudán (Sorghum sudanense). Coeficientes para forraje verde."
+  }
+]

@@ -1,0 +1,78 @@
+[
+  {
+    "slug": "maiz",
+    "name": "Corn",
+    "name_es": "Maíz",
+    "n_per_t": 22.0,
+    "p2o5_per_t": 9.0,
+    "k2o_per_t": 20.0,
+    "description": "Maíz de grano (Zea mays). Coeficientes para rendimiento de grano seco."
+  },
+  {
+    "slug": "trigo",
+    "name": "Wheat",
+    "name_es": "Trigo",
+    "n_per_t": 25.0,
+    "p2o5_per_t": 10.0,
+    "k2o_per_t": 18.0,
+    "description": "Trigo harinero (Triticum aestivum). Coeficientes para grano."
+  },
+  {
+    "slug": "arroz",
+    "name": "Rice",
+    "name_es": "Arroz",
+    "n_per_t": 20.0,
+    "p2o5_per_t": 8.0,
+    "k2o_per_t": 22.0,
+    "description": "Arroz (Oryza sativa). Coeficientes para grano descascarado."
+  },
+  {
+    "slug": "papa",
+    "name": "Potato",
+    "name_es": "Papa",
+    "n_per_t": 3.5,
+    "p2o5_per_t": 1.5,
+    "k2o_per_t": 5.0,
+    "description": "Papa (Solanum tuberosum). Coeficientes para tubérculos frescos."
+  },
+  {
+    "slug": "soya",
+    "name": "Soybean",
+    "name_es": "Soya",
+    "n_per_t": 16.0,
+    "p2o5_per_t": 14.0,
+    "k2o_per_t": 38.0,
+    "is_legume": true,
+    "n_fixation_pct": 80,
+    "description": "Soya (Glycine max). Coeficiente N ajustado: extracción 80 kg/t menos 80% fijación biológica = 16 kg/t fertilización."
+  },
+  {
+    "slug": "alfalfa",
+    "name": "Alfalfa",
+    "name_es": "Alfalfa",
+    "n_per_t": 11.0,
+    "p2o5_per_t": 11.0,
+    "k2o_per_t": 45.0,
+    "is_legume": true,
+    "n_fixation_pct": 80,
+    "description": "Alfalfa (Medicago sativa). Coeficiente N ajustado: extracción 55 kg/t menos 80% fijación biológica = 11 kg/t fertilización."
+  },
+  {
+    "slug": "tomate",
+    "name": "Tomato",
+    "name_es": "Tomate",
+    "n_per_t": 3.0,
+    "p2o5_per_t": 1.0,
+    "k2o_per_t": 4.5,
+    "description": "Tomate (Solanum lycopersicum). Coeficientes para fruto fresco."
+  },
+  {
+    "slug": "chile",
+    "name": "Chili Pepper",
+    "name_es": "Chile",
+    "n_per_t": 4.0,
+    "p2o5_per_t": 1.2,
+    "k2o_per_t": 5.0,
+    "description": "Chile (Capsicum spp.). Coeficientes para fruto fresco."
+  }
+]
