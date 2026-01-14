@@ -1677,7 +1677,13 @@ export default function FertiIrrigationCalculator() {
       // Use backendAcidProgram (with cost_per_ha) if available, fallback to acidRecommendation
       const acidDataForTransform = backendAcidProgram?.recommended ? backendAcidProgram : acidRecommendation;
       const res = transformAIResponse(aiRes, acidDataForTransform);
-      setOptimizationResult({...res, acidRecommendation: acidRecommendation, backendAcidProgram: backendAcidProgram});
+      setOptimizationResult({
+        ...res,
+        deficits: optimizationDeficits,
+        adjusted_deficits: optimizationDeficits,
+        acidRecommendation: acidRecommendation,
+        backendAcidProgram: backendAcidProgram
+      });
       setHasGeneratedAIProfiles(true);
     } catch (err) {
       setError(err.message || 'Error al optimizar');
@@ -1749,7 +1755,13 @@ export default function FertiIrrigationCalculator() {
       // Use backendAcidProgram (with cost_per_ha) if available, fallback to acidRecommendation
       const acidDataForTransform = backendAcidProgram?.recommended ? backendAcidProgram : acidRecommendation;
       const res = transformAIResponse(aiRes, acidDataForTransform);
-      setOptimizationResult({...res, acidRecommendation: acidRecommendation, backendAcidProgram: backendAcidProgram});
+      setOptimizationResult({
+        ...res,
+        deficits: optimizationDeficits,
+        adjusted_deficits: optimizationDeficits,
+        acidRecommendation: acidRecommendation,
+        backendAcidProgram: backendAcidProgram
+      });
     } catch (err) {
       setError(err.message || 'Error al optimizar');
     } finally {
@@ -4690,7 +4702,7 @@ export default function FertiIrrigationCalculator() {
                         soil: optimizationResult?.agronomicContext?.soil || soilData || {},
                         water: optimizationResult?.agronomicContext?.water || waterData || {}
                       };
-                      const deficits = optimizationResult?.deficits || {};
+                      const deficits = optimizationResult?.adjusted_deficits || optimizationResult?.deficits || {};
                       const coverageExplained = profile.coverage_explained || {};
                       const { status, message } = getNutrientStatus(
                         nutrient, pct, coverageExplained, deficits, agronomicContext, formData.growth_stage
