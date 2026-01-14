@@ -302,7 +302,8 @@ export default function FertiIrrigationCalculator() {
       }
 
       const selectedWater = waterAnalyses.find(w => w.id === formData.water_analysis_id);
-      if (!selectedWater || !selectedWater.anion_hco3 || selectedWater.anion_hco3 < 0.5) {
+      const hco3Value = getWaterHco3Meq(selectedWater);
+      if (!selectedWater || !hco3Value || hco3Value < 0.5) {
         setAcidRecommendation(null);
         return;
       }
@@ -310,7 +311,7 @@ export default function FertiIrrigationCalculator() {
       try {
         setLoadingAcid(true);
         const params = new URLSearchParams({
-          bicarbonates_meq: selectedWater.anion_hco3,
+          bicarbonates_meq: hco3Value,
           target_bicarbonates_meq: 1.0,
           volume_liters: 1000,
           p_deficit: formData.p2o5_kg_ha || 0,
@@ -1260,6 +1261,16 @@ export default function FertiIrrigationCalculator() {
     return { coverage, missing, isComplete: missing.length === 0 };
   };
 
+  const getWaterHco3Meq = (water) => {
+    if (!water) return 0;
+    return (
+      water.anion_hco3 ??
+      water.hco3_meq_l ??
+      water.bicarbonates ??
+      0
+    );
+  };
+
   const getNegativeStageDeltas = () => {
     if (!stageExtractionPercent || !previousStageExtractionPercent) {
       return [];
@@ -1319,7 +1330,7 @@ export default function FertiIrrigationCalculator() {
       water_info: selectedWater ? {
         ph: selectedWater.ph || 7,
         ec: selectedWater.ec || 0,
-        hco3: selectedWater.hco3_meq_l || selectedWater.bicarbonates || 0,
+        hco3: getWaterHco3Meq(selectedWater),
         na: selectedWater.na_meq_l || 0,
         cl: selectedWater.cl_meq_l || 0,
         ca: selectedWater.ca_meq_l || 0,
@@ -1625,7 +1636,7 @@ export default function FertiIrrigationCalculator() {
       // Build water analysis data for acid recommendation
       const selectedWater = getSelectedWater();
       const waterAnalysisData = selectedWater ? {
-        hco3_meq_l: selectedWater.anion_hco3 || selectedWater.hco3_meq_l || 0,
+        hco3_meq_l: getWaterHco3Meq(selectedWater),
         ph: selectedWater.ph || 7,
         ec: selectedWater.ec || 0,
         cl_meq_l: selectedWater.cl_meq_l || 0,
@@ -5003,7 +5014,7 @@ export default function FertiIrrigationCalculator() {
     });
     const selectedWater = getSelectedWater();
     const waterPh = selectedWater?.ph;
-    const waterHco3 = selectedWater?.anion_hco3 || selectedWater?.hco3_meq_l || selectedWater?.bicarbonates || 0;
+    const waterHco3 = getWaterHco3Meq(selectedWater);
     const showWaterWarning = (waterPh && waterPh >= 7.2) || waterHco3 >= 2;
 
     const irrigationFrequencyDays = irrigationSuggestion?.frequency_days || formData.irrigation_frequency_days;
