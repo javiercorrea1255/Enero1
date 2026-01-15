@@ -5150,6 +5150,43 @@ export default function FertiIrrigationCalculator() {
       Mg: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'Mg', 'mg_pct', f.dose_kg_ha || f.total_dose || 0), 0),
       S: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'S', 's_pct', f.dose_kg_ha || f.total_dose || 0), 0) + acidContribTotals.S
     };
+    const fertOnlyTotals = {
+      N: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'N', 'n_pct', f.dose_kg_ha || f.total_dose || 0), 0),
+      NH4: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'NH4', 'nh4_pct', f.dose_kg_ha || f.total_dose || 0), 0),
+      P2O5: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'P2O5', 'p2o5_pct', f.dose_kg_ha || f.total_dose || 0), 0),
+      K2O: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'K2O', 'k2o_pct', f.dose_kg_ha || f.total_dose || 0), 0),
+      Ca: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'Ca', 'ca_pct', f.dose_kg_ha || f.total_dose || 0), 0),
+      Mg: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'Mg', 'mg_pct', f.dose_kg_ha || f.total_dose || 0), 0),
+      S: fertSource.reduce((sum, f) => sum + getContributionValue(f, 'S', 's_pct', f.dose_kg_ha || f.total_dose || 0), 0)
+    };
+    const coverageDiagnosticsRows = (r.nutrient_balance || []).map((nb) => {
+      const nutrient = nb.nutrient;
+      const deficit = nb.deficit_kg_ha || 0;
+      const fertNeeded = nb.fertilizer_needed_kg_ha || 0;
+      const acidContribution = nb.acid_contribution_kg_ha || 0;
+      const fertContribution = fertOnlyTotals[nutrient] || 0;
+      const profileCoverage = currentProfile?.coverage?.[nutrient];
+      const coverageFromContrib = deficit > 0
+        ? ((fertContribution + acidContribution) / deficit) * 100
+        : null;
+      const coverageDelta = (profileCoverage !== undefined && coverageFromContrib !== null)
+        ? Math.abs(profileCoverage - coverageFromContrib)
+        : null;
+      return {
+        nutrient,
+        deficit,
+        fertNeeded,
+        fertContribution,
+        acidContribution,
+        profileCoverage,
+        coverageFromContrib,
+        coverageDelta
+      };
+    });
+    const missingCostFerts = macroFerts.filter((f) => {
+      const hasCost = (f.cost_ha || f.cost_total || f.total_cost) || ((f.cost_per_kg || 0) > 0 && (f.dose_kg_ha || 0) > 0);
+      return !hasCost;
+    });
 
     return (
       <div className="wizard-space-y-6">
@@ -5508,6 +5545,62 @@ export default function FertiIrrigationCalculator() {
               <div style={{ fontSize: '0.75rem', color: '#1e40af' }}>riegos programados</div>
             </div>
           </div>
+        </div>
+
+        {/* ===== DIAGNÓSTICO DE INCONSISTENCIAS ===== */}
+        <div className="wizard-panel" style={{ marginBottom: '20px', background: '#fff7ed', border: '1px solid #fb923c' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <AlertTriangle size={18} color="#ea580c" />
+            <h4 style={{ margin: 0, fontWeight: 700, color: '#9a3412' }}>
+              Diagnóstico de consistencia (coberturas vs. aportes)
+            </h4>
+          </div>
+          <p style={{ fontSize: '0.8rem', color: '#9a3412', margin: '0 0 12px 0' }}>
+            Comparación entre la cobertura del optimizador y los aportes agregados mostrados en tablas. Úsalo para detectar discrepancias.
+          </p>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="wizard-table">
+              <thead>
+                <tr>
+                  <th>Nutriente</th>
+                  <th className="text-right">Déficit (kg/ha)</th>
+                  <th className="text-right">Fert. necesario</th>
+                  <th className="text-right">Aporte fert.</th>
+                  <th className="text-right">Aporte ácido</th>
+                  <th className="text-right">Cobertura perfil</th>
+                  <th className="text-right">Cobertura calculada</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coverageDiagnosticsRows.map((row) => {
+                  const mismatch = row.coverageDelta !== null && row.coverageDelta > 8;
+                  return (
+                    <tr key={row.nutrient} style={{ background: mismatch ? '#ffedd5' : 'transparent' }}>
+                      <td className="font-bold">{row.nutrient}</td>
+                      <td className="text-right">{row.deficit.toFixed(2)}</td>
+                      <td className="text-right">{row.fertNeeded.toFixed(2)}</td>
+                      <td className="text-right">{row.fertContribution.toFixed(2)}</td>
+                      <td className="text-right">{row.acidContribution.toFixed(2)}</td>
+                      <td className="text-right">
+                        {row.profileCoverage !== undefined ? `${row.profileCoverage.toFixed(1)}%` : '—'}
+                      </td>
+                      <td className="text-right">
+                        {row.coverageFromContrib !== null ? `${row.coverageFromContrib.toFixed(1)}%` : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {missingCostFerts.length > 0 && (
+            <div style={{ marginTop: '12px', fontSize: '0.8rem', color: '#9a3412' }}>
+              <strong>Costos faltantes:</strong> {missingCostFerts.map(f => f.fertilizer_name || f.name).join(', ')}
+            </div>
+          )}
+          <p style={{ fontSize: '0.75rem', color: '#9a3412', marginTop: '8px' }}>
+            Si la cobertura calculada difiere más de 8% del perfil, revisa: déficit usado por el optimizador, aportes por fertilizante y ácido, o datos de suelo/agua.
+          </p>
         </div>
 
         {/* ===== IRRIGATION RESULTS ===== */}
