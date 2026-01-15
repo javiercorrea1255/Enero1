@@ -1590,6 +1590,8 @@ export default function FertiIrrigationCalculator() {
           grand_total_ha: totalCostHa + acidCostHa,
           grand_total_total: (totalCostHa + acidCostHa) * areaHa,
           coverage: profile.coverage || {},
+          coverage_explained: profile.coverage_explained || {},
+          coverage_diagnostics: profile.coverage_diagnostics || null,
           traceability: profile.traceability || null,
           warnings: [],
           score: 95,

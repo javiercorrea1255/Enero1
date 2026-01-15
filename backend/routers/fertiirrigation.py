@@ -2525,6 +2525,8 @@ class AIProfileResult(BaseModel):
     macro_cost_per_ha: float = 0
     micro_cost_per_ha: float = 0
     coverage: Dict[str, float]
+    coverage_explained: Optional[Dict[str, str]] = None
+    coverage_diagnostics: Optional[Dict[str, Any]] = None
     notes: str = ""
     traceability: Optional[Dict[str, Any]] = None
 
@@ -2718,6 +2720,8 @@ async def ai_optimize_fertigation(
                 macro_cost_per_ha=round(macro_cost, 2),
                 micro_cost_per_ha=round(micro_cost, 2),
                 coverage=profile_data.get("coverage", {}),
+                coverage_explained=profile_data.get("coverage_explained"),
+                coverage_diagnostics=profile_data.get("coverage_diagnostics"),
                 notes=profile_data.get("notes", ""),
                 traceability=profile_data.get("traceability")
             )
