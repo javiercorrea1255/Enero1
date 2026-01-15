@@ -2360,11 +2360,13 @@ def check_fertilizer_compatibility(
     with open(data_path, "r", encoding="utf-8") as f:
         compatibility_data = json.load(f)
     
-    fert_path = Path(__file__).parent.parent / "data" / "fertilizer_products.json"
-    with open(fert_path, "r", encoding="utf-8") as f:
-        fertilizer_products = json.load(f)
-    
-    fert_by_slug = {f["slug"]: f for f in fertilizer_products}
+    from app.services.fertiirrigation_optimizer import _load_hydro_fertilizers_catalog
+    fertilizer_products = _load_hydro_fertilizers_catalog()
+    fert_by_slug = {}
+    for fert in fertilizer_products:
+        key = fert.get("slug") or fert.get("id")
+        if key:
+            fert_by_slug[key] = fert
     
     rules = compatibility_data["compatibility_rules"].get(acid_type, {})
     incompatible_categories = set(rules.get("incompatible_categories", []))
@@ -2523,6 +2525,8 @@ class AIProfileResult(BaseModel):
     macro_cost_per_ha: float = 0
     micro_cost_per_ha: float = 0
     coverage: Dict[str, float]
+    coverage_explained: Optional[Dict[str, str]] = None
+    coverage_diagnostics: Optional[Dict[str, Any]] = None
     notes: str = ""
     traceability: Optional[Dict[str, Any]] = None
 
@@ -2716,6 +2720,8 @@ async def ai_optimize_fertigation(
                 macro_cost_per_ha=round(macro_cost, 2),
                 micro_cost_per_ha=round(micro_cost, 2),
                 coverage=profile_data.get("coverage", {}),
+                coverage_explained=profile_data.get("coverage_explained"),
+                coverage_diagnostics=profile_data.get("coverage_diagnostics"),
                 notes=profile_data.get("notes", ""),
                 traceability=profile_data.get("traceability")
             )

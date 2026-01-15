@@ -30,6 +30,18 @@ const FERTILIZER_CATEGORIES = {
   chelate: { label: 'Quelatos', icon: FlaskConical, color: '#f59e0b' }
 };
 
+let priceSyncChannel = null;
+
+const getPriceSyncChannel = () => {
+  if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined') {
+    return null;
+  }
+  if (!priceSyncChannel) {
+    priceSyncChannel = new BroadcastChannel('fertilizer-prices');
+  }
+  return priceSyncChannel;
+};
+
 const FertilizerPrices = ({ embedded = false }) => {
   const { isAuthenticated } = useAuth();
   const isMobile = useIsMobile(768);
@@ -45,6 +57,23 @@ const FertilizerPrices = ({ embedded = false }) => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [hasChanges, setHasChanges] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
+
+  const notifyPriceSync = (payload = {}) => {
+    const detail = {
+      ...payload,
+      timestamp: Date.now()
+    };
+    window.dispatchEvent(new CustomEvent('fertilizer-prices-updated', { detail }));
+    try {
+      localStorage.setItem('fertilizer-prices-sync', JSON.stringify(detail));
+    } catch (error) {
+      console.warn('[FertilizerPrices] Unable to persist price sync event', error);
+    }
+    const channel = getPriceSyncChannel();
+    if (channel) {
+      channel.postMessage(detail);
+    }
+  };
 
   const fetchCurrencies = useCallback(async () => {
     try {
@@ -155,6 +184,7 @@ const FertilizerPrices = ({ embedded = false }) => {
       
       // Then fetch the prices for the new currency (this now uses the updated preference)
       await fetchPrices();
+      notifyPriceSync({ reason: 'currency-change', currency: newCurrency });
     } catch (error) {
       console.error('[FertilizerPrices] Error updating currency:', error);
       setMessage({ type: 'error', text: 'Error al cambiar la moneda' });
@@ -218,6 +248,7 @@ const FertilizerPrices = ({ embedded = false }) => {
       if (response.ok) {
         setMessage({ type: 'success', text: 'Precios guardados correctamente' });
         await fetchPrices();
+        notifyPriceSync({ reason: 'prices-saved', currency: selectedCurrency });
       } else {
         throw new Error('Failed to save');
       }
@@ -241,6 +272,7 @@ const FertilizerPrices = ({ embedded = false }) => {
       if (response.ok) {
         setMessage({ type: 'success', text: 'Precios restaurados' });
         await fetchPrices();
+        notifyPriceSync({ reason: 'prices-reset', currency: selectedCurrency });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Error al restaurar' });
